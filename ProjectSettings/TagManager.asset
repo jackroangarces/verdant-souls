@@ -5,18 +5,20 @@ TagManager:
   serializedVersion: 3
   tags:
   - Enemy
+  - RoomBoundary
+  - Hole
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
+  - ProjectileEnemy
+  - InnerWall
+  - RoomBoundary
+  - Enemy
+  - Hazard
   - 
   - 
   - 
@@ -45,8 +47,20 @@ TagManager:
   - name: Background
     uniqueID: 980357065
     locked: 0
-  - name: Player
+  - name: Floor
+    uniqueID: 3322555767
+    locked: 0
+  - name: Obstacles
+    uniqueID: 4233076621
+    locked: 0
+  - name: Entities
     uniqueID: 2052241301
+    locked: 0
+  - name: VFX
+    uniqueID: 1513153303
+    locked: 0
+  - name: UI
+    uniqueID: 3004942285
     locked: 0
   m_RenderingLayers:
   - Default

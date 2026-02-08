@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnemyDummy : MonoBehaviour
+public class DummyEnemy : MonoBehaviour
 {
     public int maxHealth = 3;
     private int currentHealth;

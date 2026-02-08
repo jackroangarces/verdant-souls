@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class MovementPlayer : MonoBehaviour
 {
     [Header("Movement")]
     public float maxSpeed = 5f;
@@ -114,7 +114,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            EnemyDummy enemy = collision.gameObject.GetComponent<EnemyDummy>();
+            DummyEnemy enemy = collision.gameObject.GetComponent<DummyEnemy>();
             if (enemy != null)
             {
                 enemy.TakeDamage(bumpDamage, transform);
