@@ -1,38 +1,60 @@
 using UnityEngine;
+using System.Collections;
 
 public class MovementPlayer : MonoBehaviour
 {
     [Header("Movement")]
     public float maxSpeed = 5f;
-    public float joystickRadius = 100f; // in screen pixels
+    public float joystickRadius = 100f;
 
     [Header("Room Bounds")]
     [SerializeField] private RoomBounds roomBounds;
     [SerializeField] private float wallPadding = 0.5f;
 
     [Header("Combat")]
-    public int bumpDamage = 1;
     public float knockbackForce = 6f;
     public float knockbackDuration = 0.12f;
+
+    [Header("Dodge Roll")]
+    [SerializeField] private float rollDistance = 3f;
+    [SerializeField] private float rollDuration = 0.2f;
+    [SerializeField] private float rollCooldown = 0.5f;
 
     private Rigidbody2D rb;
 
     private Vector2 touchStartPos;
     private Vector2 moveInput;
+    private Vector2 lastMoveDirection = Vector2.down;
     private bool isTouching;
 
     private bool isKnockedBack;
     private float knockbackTimer;
     private Vector2 knockbackVelocity;
 
+    private bool isRolling;
+    private bool canRoll = true;
+    private int defaultLayer;
+    private int rollingLayer = -1;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        defaultLayer = gameObject.layer;
+        rollingLayer = LayerMask.NameToLayer("RollingPlayer");
+        if (rollingLayer < 0)
+            Debug.LogWarning("MovementPlayer: 'RollingPlayer' layer not found. Add it in Edit > Project Settings > Tags and Layers.");
     }
 
     void Update()
     {
         HandleInput();
+
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            TryRoll();
+        }
+#endif
     }
 
     void FixedUpdate()
@@ -43,16 +65,16 @@ public class MovementPlayer : MonoBehaviour
             knockbackTimer -= Time.fixedDeltaTime;
 
             if (knockbackTimer <= 0f)
-            {
                 isKnockedBack = false;
-            }
-        }
-        else
-        {
-            rb.linearVelocity = moveInput * maxSpeed;
-        }
-    }
 
+            return;
+        }
+
+        if (isRolling)
+            return;
+
+        rb.linearVelocity = moveInput * maxSpeed;
+    }
 
     void HandleInput()
     {
@@ -61,6 +83,9 @@ public class MovementPlayer : MonoBehaviour
 #else
         HandleTouchInput();
 #endif
+
+        if (moveInput.sqrMagnitude > 0.01f)
+            lastMoveDirection = moveInput.normalized;
     }
 
     void HandleTouchInput()
@@ -110,29 +135,54 @@ public class MovementPlayer : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void TryRoll()
     {
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            DummyEnemy enemy = collision.gameObject.GetComponent<DummyEnemy>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(bumpDamage, transform);
-            }
+        if (!canRoll || isRolling || isKnockedBack)
+            return;
 
-            ApplyKnockback(collision.transform);
-        }
+        if (lastMoveDirection == Vector2.zero)
+            return;
+
+        StartCoroutine(DodgeRoll(lastMoveDirection));
     }
 
-    void ApplyKnockback(Transform enemy)
+    IEnumerator DodgeRoll(Vector2 direction)
     {
+        isRolling = true;
+        canRoll = false;
+
+        if (rollingLayer >= 0)
+            gameObject.layer = rollingLayer;
+
+        float elapsed = 0f;
+        float speed = rollDistance / rollDuration;
+
+        while (elapsed < rollDuration)
+        {
+            rb.linearVelocity = direction * speed;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        rb.linearVelocity = Vector2.zero;
+        if (rollingLayer >= 0)
+            gameObject.layer = defaultLayer;
+        isRolling = false;
+
+        yield return new WaitForSeconds(rollCooldown);
+        canRoll = true;
+    }
+
+    public void ApplyKnockback(Transform enemy)
+    {
+        if (isRolling) return;
+
         Vector2 direction = (transform.position - enemy.position).normalized;
 
         knockbackVelocity = direction * knockbackForce;
         knockbackTimer = knockbackDuration;
         isKnockedBack = true;
     }
-
 
     void LateUpdate()
     {

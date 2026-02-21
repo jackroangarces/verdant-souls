@@ -6,7 +6,7 @@ public class KillPlayerOnTouch : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        DeathPlayer health = other.GetComponent<DeathPlayer>();
+        DeathPlayer health = other.GetComponentInParent<DeathPlayer>();
         if (health != null)
         {
             health.Die();

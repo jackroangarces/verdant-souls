@@ -1,19 +1,19 @@
 using UnityEngine;
 
-public class DummyEnemy : MonoBehaviour
+[RequireComponent(typeof(Rigidbody2D))]
+public class EnemyHealthKnockback : MonoBehaviour
 {
     public int maxHealth = 3;
-    private int currentHealth;
+    int currentHealth;
 
     [Header("Knockback")]
     public float knockbackForce = 4f;
     public float knockbackDuration = 0.1f;
 
-    private Rigidbody2D rb;
-    private bool isKnockedBack;
-    private float knockbackTimer;
-    private Vector2 knockbackVelocity;
-
+    Rigidbody2D rb;
+    bool isKnockedBack;
+    float knockbackTimer;
+    Vector2 knockbackVelocity;
 
     void Awake()
     {
@@ -24,13 +24,10 @@ public class DummyEnemy : MonoBehaviour
     public void TakeDamage(int damage, Transform attacker)
     {
         currentHealth -= damage;
-
         ApplyKnockback(attacker);
 
         if (currentHealth <= 0)
-        {
             Die();
-        }
     }
 
     void ApplyKnockback(Transform attacker)
@@ -43,22 +40,21 @@ public class DummyEnemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isKnockedBack)
-        {
-            rb.linearVelocity = knockbackVelocity;
-            knockbackTimer -= Time.fixedDeltaTime;
+        if (!isKnockedBack) return;
 
-            if (knockbackTimer <= 0f)
-            {
-                isKnockedBack = false;
-                rb.linearVelocity = Vector2.zero;
-            }
+        rb.linearVelocity = knockbackVelocity;
+        knockbackTimer -= Time.fixedDeltaTime;
+
+        if (knockbackTimer <= 0f)
+        {
+            isKnockedBack = false;
+            rb.linearVelocity = Vector2.zero;
         }
     }
 
     void Die()
     {
-        HitPause.Freeze(0.06f);
+        // Optional: HitPause/ScreenShake on kill here
         Destroy(gameObject);
     }
 }

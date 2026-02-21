@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ProjectileEnemy : MonoBehaviour
+public class EnemyProjectile : MonoBehaviour
 {
     public float speed = 6f;
     public float lifetime = 5f;
@@ -20,12 +20,6 @@ public class ProjectileEnemy : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            // TODO: damage player
-            Destroy(gameObject);
-        }
-
         if (other.CompareTag("RoomBoundary"))
         {
             Destroy(gameObject);

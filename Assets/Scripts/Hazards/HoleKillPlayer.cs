@@ -27,7 +27,7 @@ public class HoleKillPlayer : MonoBehaviour
 
         if (percentOverHole >= requiredOverlapPercent)
         {
-            DeathPlayer death = other.GetComponent<DeathPlayer>();
+            DeathPlayer death = other.GetComponentInParent<DeathPlayer>();
             if (death != null)
                 death.Die();
         }

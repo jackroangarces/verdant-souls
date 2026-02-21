@@ -19,9 +19,9 @@ TagManager:
   - RoomBoundary
   - Enemy
   - Hazard
-  - 
-  - 
-  - 
+  - HurtboxPlayer
+  - HitboxPlayer
+  - RollingPlayer
   - 
   - 
   - 
